@@ -1,12 +1,18 @@
 {
-	"name": "com.depra.template",
+	"name": "com.depra.bootstrap.unity",
 	"version": "0.0.1",
-	"displayName": "Unity Package Template",
-	"description": "Template for creating Unity game engine packages.",
+	"displayName": "Depra.Bootstrap",
+	"description": "",
 	"unity": "2022.3",
 	"license": "Apache-2.0",
-  "dependencies": {},
-	"keywords": [],
+	"dependencies": {
+		"com.depra.loading.unity": "0.0.5"
+	},
+	"keywords": [
+		"depra",
+		"unity",
+		"bootstrap"
+	],
 	"author": {
 		"name": "Depra, Inc.",
 		"email": "n.melnikov@depra.org",
@@ -14,6 +20,6 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Depra-Inc/Template.Package.Unity.git"
+		"url": "https://github.com/Depra-Inc/Bootstrap.Unity.git"
 	}
 }
