@@ -1,15 +1,13 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using Depra.IoC.QoL.Builder;
 using Depra.IoC.Scope;
+using UnityEngine;
 
 namespace Depra.Bootstrap
 {
-	public interface IBootstrapElement
+	public abstract class SceneBootstrap : MonoBehaviour
 	{
-		void InstallBindings(IContainerBuilder container);
-
-		void Initialize(IScope scope);
+		public abstract void Initialize(IScope scope);
 	}
 }

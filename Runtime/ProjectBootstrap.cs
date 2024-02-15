@@ -4,13 +4,16 @@
 using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.QoL.Builder;
+using Depra.IoC.Scope;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Depra.Bootstrap
 {
 	[DisallowMultipleComponent]
-	public sealed class Bootstrap : MonoBehaviour
+	public sealed class ProjectBootstrap : MonoBehaviour
 	{
+		private IScope _scope;
 		private IContainer _container;
 		private IBootstrapElement[] _elements;
 
@@ -22,7 +25,7 @@ namespace Depra.Bootstrap
 			_elements = GetComponents<IBootstrapElement>();
 			foreach (var element in _elements)
 			{
-				element.PreInitialize(builder);
+				element.InstallBindings(builder);
 			}
 
 			_container = builder.Build();
@@ -30,13 +33,20 @@ namespace Depra.Bootstrap
 
 		private void Start()
 		{
-			var scope = _container.CreateScope();
+			_scope = _container.CreateScope();
 			foreach (var element in _elements)
 			{
-				element.Initialize(scope);
+				element.Initialize(_scope);
 			}
 		}
 
 		private void OnDestroy() => _container?.Dispose();
+
+		private void OnEnable() => SceneManager.activeSceneChanged += OnActiveSceneChanged;
+
+		private void OnDisable() => SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+
+		private void OnActiveSceneChanged(Scene arg0, Scene arg1) =>
+			FindObjectOfType<SceneBootstrap>().Initialize(_scope);
 	}
 }
