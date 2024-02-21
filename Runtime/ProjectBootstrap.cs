@@ -46,7 +46,13 @@ namespace Depra.Bootstrap
 
 		private void OnDisable() => SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 
-		private void OnActiveSceneChanged(Scene arg0, Scene arg1) =>
-			FindObjectOfType<SceneBootstrap>()?.Initialize(_scope);
+		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
+		{
+			var sceneBootstraps = FindObjectsByType<SceneBootstrap>(FindObjectsSortMode.None);
+			foreach (var sceneBootstrap in sceneBootstraps)
+			{
+				sceneBootstrap.Initialize(_scope);
+			}
+		}
 	}
 }
