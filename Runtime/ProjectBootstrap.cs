@@ -48,7 +48,7 @@ namespace Depra.Bootstrap
 
 		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
 		{
-			if (arg0.name != SceneManager.GetActiveScene().name)
+			if (arg1.name != SceneManager.GetActiveScene().name)
 			{
 				return;
 			}
