@@ -4,9 +4,9 @@
 using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.QoL.Builder;
+using Depra.IoC.QoL.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Depra.Bootstrap
 {
@@ -15,48 +15,27 @@ namespace Depra.Bootstrap
 	{
 		private IScope _scope;
 		private IContainer _container;
-		private IBootstrapElement[] _elements;
 
 		private void Awake()
 		{
 			var activation = new LambdaBasedActivationBuilder();
 			var builder = new ContainerBuilder(activation);
-
-			_elements = GetComponents<IBootstrapElement>();
-			foreach (var element in _elements)
+			foreach (var element in GetComponents<IInstaller>())
 			{
-				element.InstallBindings(builder);
+				element.Install(builder);
 			}
 
 			_container = builder.Build();
 		}
 
+		private void OnDestroy() => _container?.Dispose();
+
 		private void Start()
 		{
 			_scope = _container.CreateScope();
-			foreach (var element in _elements)
+			foreach (var element in GetComponents<IBootstrapElement>())
 			{
 				element.Initialize(_scope);
-			}
-		}
-
-		private void OnDestroy() => _container?.Dispose();
-
-		private void OnEnable() => SceneManager.activeSceneChanged += OnActiveSceneChanged;
-
-		private void OnDisable() => SceneManager.activeSceneChanged -= OnActiveSceneChanged;
-
-		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
-		{
-			if (arg1.name != SceneManager.GetActiveScene().name)
-			{
-				return;
-			}
-
-			var sceneBootstraps = FindObjectsByType<SceneBootstrap>(FindObjectsSortMode.None);
-			foreach (var sceneBootstrap in sceneBootstraps)
-			{
-				sceneBootstrap.Initialize(_scope);
 			}
 		}
 	}

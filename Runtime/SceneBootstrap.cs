@@ -9,5 +9,7 @@ namespace Depra.Bootstrap
 	public abstract class SceneBootstrap : MonoBehaviour
 	{
 		public abstract void Initialize(IScope scope);
+
+		public abstract void TearDown();
 	}
 }
