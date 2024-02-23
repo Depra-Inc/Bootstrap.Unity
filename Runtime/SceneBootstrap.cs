@@ -10,6 +10,6 @@ namespace Depra.Bootstrap
 	{
 		public abstract void Initialize(IScope scope);
 
-		public abstract void TearDown();
+		public virtual void TearDown() { }
 	}
 }
