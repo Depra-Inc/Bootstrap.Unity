@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Depra.IoC.Scope;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,13 +15,23 @@ namespace Depra.Bootstrap
 	{
 		private IScope _scope;
 
-		private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+		private void OnEnable() => SceneManager.activeSceneChanged += OnActiveSceneChanged;
 
-		private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+		private void OnDisable() => SceneManager.activeSceneChanged -= OnActiveSceneChanged;
 
-		private void OnSceneLoaded(Scene nextScene, LoadSceneMode arg1)
+		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
 		{
-			OnSceneUnloaded(SceneManager.GetActiveScene());
+			if (arg0.IsValid())
+			{
+				OnSceneUnloaded(arg0);
+			}
+
+			OnSceneLoaded(arg1);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void OnSceneLoaded(Scene nextScene)
+		{
 			var sceneRoots = SceneRoots(nextScene);
 			foreach (var sceneRoot in sceneRoots)
 			{
@@ -31,6 +42,7 @@ namespace Depra.Bootstrap
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void OnSceneUnloaded(Scene previousScene)
 		{
 			var sceneRoots = SceneRoots(previousScene);
@@ -43,6 +55,7 @@ namespace Depra.Bootstrap
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private IEnumerable<GameObject> SceneRoots(Scene scene) => scene
 			.GetRootGameObjects()
 			.Where(x => x.GetComponent<SceneBootstrap>() != null);
