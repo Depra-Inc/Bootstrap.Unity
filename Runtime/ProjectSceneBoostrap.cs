@@ -20,12 +20,7 @@ namespace Depra.Bootstrap
 
 		private void OnSceneLoaded(Scene nextScene, LoadSceneMode arg1)
 		{
-			var activeScene = SceneManager.GetActiveScene();
-			if (nextScene.name != activeScene.name)
-			{
-				OnSceneUnloaded(activeScene);
-			}
-
+			OnSceneUnloaded(SceneManager.GetActiveScene());
 			var sceneRoots = SceneRoots(nextScene);
 			foreach (var sceneRoot in sceneRoots)
 			{
