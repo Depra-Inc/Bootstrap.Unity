@@ -14,8 +14,7 @@ namespace Depra.Bootstrap
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
 		{
-			var bootstraps = Object.FindObjectsOfType<ProjectBootstrap>(true);
-			if (bootstraps.Length == 0)
+			if (Object.FindAnyObjectByType<ProjectBootstrap>(FindObjectsInactive.Include) == false)
 			{
 				Create(Load());
 			}
