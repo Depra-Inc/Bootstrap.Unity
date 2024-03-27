@@ -1,10 +1,8 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Depra.Bootstrap
 {
@@ -16,39 +14,11 @@ namespace Depra.Bootstrap
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
 		{
-			var activeScene = SceneManager.GetActiveScene();
-			if (activeScene.IsValid() == false)
-			{
-				Debug.LogWarning($"[{LOG_CHANNEL}] Active scene is not valid!");
-				return;
-			}
-
-			var rootObjects = SceneManager.GetActiveScene().GetRootGameObjects();
-			if (rootObjects.Length == 0)
+			var bootstraps = Object.FindObjectsOfType<ProjectBootstrap>(true);
+			if (bootstraps.Length == 0)
 			{
 				Create(Load());
 			}
-			else
-			{
-				if (ContainsProjectBootstrap(rootObjects) == false)
-				{
-					Create(Load());
-				}
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static bool ContainsProjectBootstrap(IEnumerable<GameObject> rootObjects)
-		{
-			foreach (var rootObject in rootObjects)
-			{
-				if (rootObject.GetComponent<ProjectBootstrap>() != null)
-				{
-					return true;
-				}
-			}
-
-			return false;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
