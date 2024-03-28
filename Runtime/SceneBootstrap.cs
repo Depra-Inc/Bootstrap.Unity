@@ -3,6 +3,9 @@
 
 using Depra.IoC.Scope;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Depra.Bootstrap
 {
@@ -29,7 +32,11 @@ namespace Depra.Bootstrap
 
 #if UNITY_EDITOR
 		[ContextMenu(nameof(Refill))]
-		private void Refill() => _elements = FindObjectsOfType<SceneBootstrapElement>(false);
+		private void Refill()
+		{
+			_elements = FindObjectsOfType<SceneBootstrapElement>(false);
+			EditorUtility.SetDirty(this);
+		}
 #endif
 	}
 }
