@@ -6,10 +6,25 @@ using UnityEngine;
 
 namespace Depra.Bootstrap
 {
-	public abstract class SceneBootstrap : MonoBehaviour
+	[DisallowMultipleComponent]
+	public sealed class SceneBootstrap : MonoBehaviour
 	{
-		public abstract void Initialize(IScope scope);
+		[SerializeField] private SceneBootstrapElement[] _elements;
 
-		public virtual void TearDown() { }
+		internal void Initialize(IScope scope)
+		{
+			foreach (var element in _elements)
+			{
+				element.Initialize(scope);
+			}
+		}
+
+		internal void TearDown()
+		{
+			foreach (var element in _elements)
+			{
+				element.TearDown();
+			}
+		}
 	}
 }
