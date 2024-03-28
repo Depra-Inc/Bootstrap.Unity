@@ -28,8 +28,8 @@ namespace Depra.Bootstrap
 		}
 
 #if UNITY_EDITOR
-		[ContextMenu(nameof(FindElements))]
-		private void FindElements() => _elements = FindObjectsOfType<SceneBootstrapElement>(false);
+		[ContextMenu(nameof(Refill))]
+		private void Refill() => _elements = FindObjectsOfType<SceneBootstrapElement>(false);
 #endif
 	}
 }
