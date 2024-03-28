@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System.Runtime.CompilerServices;
 using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.QoL.Builder;
@@ -13,29 +14,35 @@ namespace Depra.Bootstrap
 	[DisallowMultipleComponent]
 	public sealed class ProjectBootstrap : MonoBehaviour
 	{
-		private IScope _scope;
 		private IContainer _container;
 
 		private void Awake()
 		{
 			var activation = new LambdaBasedActivationBuilder();
 			var builder = new ContainerBuilder(activation);
-			foreach (var element in GetComponents<IInstaller>())
-			{
-				element.Install(builder);
-			}
+			Install(builder);
 
 			_container = builder.Build();
+			Initialize(_container.CreateScope());
 		}
 
 		private void OnDestroy() => _container?.Dispose();
 
-		private void Start()
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void Install(IContainerBuilder builder)
 		{
-			_scope = _container.CreateScope();
+			foreach (var element in GetComponents<IInstaller>())
+			{
+				element.Install(builder);
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void Initialize(IScope scope)
+		{
 			foreach (var element in GetComponents<IBootstrapElement>())
 			{
-				element.Initialize(_scope);
+				element.Initialize(scope);
 			}
 		}
 	}
