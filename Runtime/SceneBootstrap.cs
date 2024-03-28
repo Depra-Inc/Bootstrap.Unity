@@ -10,12 +10,28 @@ using UnityEditor;
 namespace Depra.Bootstrap
 {
 	[DisallowMultipleComponent]
-	public sealed class SceneBootstrap : MonoBehaviour
+	public sealed class SceneBootstrap : MonoBehaviour, IBootstrapElement
 	{
 		[SerializeField] private SceneBootstrapElement[] _elements;
 
-		internal void Initialize(IScope scope)
+		private bool _needCleanup;
+
+		private void OnDestroy()
 		{
+			if (_needCleanup)
+			{
+				TearDown();
+			}
+		}
+
+		public void Initialize(IScope scope)
+		{
+			if (_elements.Length == 0)
+			{
+				return;
+			}
+
+			_needCleanup = true;
 			foreach (var element in _elements)
 			{
 				element.Initialize(scope);
@@ -24,6 +40,7 @@ namespace Depra.Bootstrap
 
 		internal void TearDown()
 		{
+			_needCleanup = false;
 			foreach (var element in _elements)
 			{
 				element.TearDown();
