@@ -26,5 +26,10 @@ namespace Depra.Bootstrap
 				element.TearDown();
 			}
 		}
+
+#if UNITY_EDITOR
+		[ContextMenu(nameof(FindElements))]
+		private void FindElements() => _elements = FindObjectsOfType<SceneBootstrapElement>(false);
+#endif
 	}
 }
