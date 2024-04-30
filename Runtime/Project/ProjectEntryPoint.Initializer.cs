@@ -4,24 +4,24 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Depra.Bootstrap
+namespace Depra.Bootstrap.Project
 {
-	internal static class ProjectBootstrapInitializer
+	public sealed partial class ProjectEntryPoint
 	{
-		private const string RESOURCES_PATH = nameof(ProjectBootstrap);
-		private const string LOG_CHANNEL = nameof(ProjectBootstrapInitializer);
+		private const string LOG_CHANNEL = nameof(ProjectEntryPoint);
+		private const string RESOURCES_PATH = nameof(ProjectEntryPoint);
 
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void Initialize()
 		{
-			if (Object.FindAnyObjectByType<ProjectBootstrap>(FindObjectsInactive.Include) == false)
+			if (FindAnyObjectByType<ProjectEntryPoint>(FindObjectsInactive.Include) == false)
 			{
 				Create(Load());
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void Create(ProjectBootstrap prefab)
+		private static void Create(ProjectEntryPoint prefab)
 		{
 			if (prefab == null)
 			{
@@ -29,10 +29,10 @@ namespace Depra.Bootstrap
 				return;
 			}
 
-			var instance = Object.Instantiate(prefab);
+			var instance = Instantiate(prefab);
 			if (instance == null)
 			{
-				Debug.LogError($"[{LOG_CHANNEL}] Failed to instantiate {nameof(ProjectBootstrap)} prefab!");
+				Debug.LogError($"[{LOG_CHANNEL}] Failed to instantiate {nameof(ProjectEntryPoint)} prefab!");
 			}
 #if DEBUG || DEV_BUILD
 			instance.name = prefab.name;
@@ -40,6 +40,6 @@ namespace Depra.Bootstrap
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static ProjectBootstrap Load() => Resources.Load<ProjectBootstrap>(RESOURCES_PATH);
+		private static ProjectEntryPoint Load() => Resources.Load<ProjectEntryPoint>(RESOURCES_PATH);
 	}
 }
