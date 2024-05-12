@@ -26,13 +26,9 @@ namespace Depra.Bootstrap.Project
 			}
 
 			var builder = new ContainerBuilder(new LambdaBasedActivationBuilder());
-			foreach (var scope in GetComponents<ILifetimeScope>())
-			{
-				scope.Configure(builder);
-			}
-
-			_container = builder.Build();
 			_application = new ApplicationEntryPoint(GetComponents<IEntryPoint>());
+			_application.Configure(builder, GetComponents<ILifetimeScope>());
+			_container = builder.Build();
 			_application.Compose(_container.CreateScope());
 		}
 
