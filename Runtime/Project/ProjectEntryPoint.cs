@@ -1,68 +1,49 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System.Runtime.CompilerServices;
 using Depra.IoC;
 using Depra.IoC.Activation;
+using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
-using Depra.IoC.QoL.Composition;
-using Depra.IoC.Scope;
 using UnityEngine;
 using static Depra.Bootstrap.Internal.Module;
 
 namespace Depra.Bootstrap.Project
 {
-	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(ProjectEntryPoint), DEFAULT_ORDER)]
-	public sealed partial class ProjectEntryPoint : MonoBehaviour, IEntryPoint, ICompositionRoot
+	public sealed partial class ProjectEntryPoint : MonoBehaviour
 	{
+		[SerializeField] private bool _dontDestroyOnLoad;
+
 		private IContainer _container;
+		private ApplicationEntryPoint _application;
 
 		private void Awake()
 		{
-			((ICompositionRoot) this).Register();
-			Resolve(_container.CreateScope());
-		}
-
-		private void OnDestroy() => ((ICompositionRoot) this).Release();
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void Resolve(IScope scope)
-		{
-			foreach (var element in GetComponents<IEntryPoint>())
+			if (_dontDestroyOnLoad)
 			{
-				element.Resolve(scope);
+				DontDestroyOnLoad(gameObject);
 			}
-		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void ICompositionRoot.Register()
-		{
-			var activation = new LambdaBasedActivationBuilder();
-			var builder = new ContainerBuilder(activation);
+			var builder = new ContainerBuilder(new LambdaBasedActivationBuilder());
 			foreach (var scope in GetComponents<ILifetimeScope>())
 			{
 				scope.Configure(builder);
 			}
 
 			_container = builder.Build();
+			_application = new ApplicationEntryPoint(GetComponents<IEntryPoint>());
+			_application.Compose(_container.CreateScope());
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void ICompositionRoot.Release()
+		private void OnDestroy()
 		{
-			foreach (var element in GetComponents<ICompositionRoot>())
+			_application?.Dispose();
+			if (_container != null)
 			{
-				element.Release();
+				_container.Dispose();
+				_container = null;
 			}
-
-			if (_container == null)
-			{
-				return;
-			}
-
-			_container.Dispose();
-			_container = null;
 		}
 	}
 }
