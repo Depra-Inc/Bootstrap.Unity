@@ -1,11 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using Depra.IoC.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,37 +11,21 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(ScenesEntryPoint), DEFAULT_ORDER)]
-	public sealed class ScenesEntryPoint : MonoBehaviour, IEntryPoint
+	public sealed class ScenesEntryPoint : SceneCompositionRoot
 	{
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static IEntryPoint FindEntryPoint(Scene scene) => scene
-			.GetRootGameObjects()
-			.Select(gameObject => gameObject.GetComponent<SceneEntryPoint>())
-			.Select(entryPoint => entryPoint)
-			.FirstOrDefault();
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void OnSceneUnloaded(Scene previousScene)
-		{
-			if (FindEntryPoint(previousScene) is IDisposable disposable)
-			{
-				disposable.Dispose();
-			}
-		}
-
 		private IScope _scope;
 
-		IEnumerable<ILifetimeScope> IEntryPoint.LifetimeScopes => GetComponents<ILifetimeScope>();
+		public override void Compose(IScope scope) => _scope = scope;
 
-		private void Start()
+		public override void Register()
 		{
 			SceneManager.activeSceneChanged += OnActiveSceneChanged;
 		}
 
-		private void OnDestroy()
+		public override void Release()
 		{
-			_scope = null;
 			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+			OnSceneUnloaded(SceneManager.GetActiveScene());
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,10 +42,34 @@ namespace Depra.Bootstrap.Scenes
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void OnSceneLoaded(Scene nextScene)
 		{
-			var entryPoint = FindEntryPoint(nextScene);
-			entryPoint.Compose(_scope);
+			if (TryFindEntryPoint(nextScene, out var entryPoint))
+			{
+				entryPoint.Compose(_scope);
+			}
 		}
 
-		void ICompositionRoot.Compose(IScope scope) => _scope = scope;
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void OnSceneUnloaded(Scene previousScene)
+		{
+			if (TryFindEntryPoint(previousScene, out var entryPoint))
+			{
+				entryPoint.Release();
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private bool TryFindEntryPoint(Scene scene, out SceneEntryPoint entryPoint)
+		{
+			foreach (var rootObject in scene.GetRootGameObjects())
+			{
+				if (rootObject.TryGetComponent(out entryPoint))
+				{
+					return true;
+				}
+			}
+
+			entryPoint = null;
+			return false;
+		}
 	}
 }

@@ -1,30 +1,35 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System.Collections.Generic;
-using Depra.IoC.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
-using UnityEngine.Serialization;
 using static Depra.Bootstrap.Internal.Module;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
-	public sealed class SceneEntryPoint : MonoBehaviour, IEntryPoint
+	public sealed class SceneEntryPoint : SceneCompositionRoot
 	{
-		[FormerlySerializedAs("_elements")]
-		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
+		[SerializeField] private SceneCompositionRoot[] _roots;
 
 		private bool _needCleanup;
 
-		IEnumerable<ILifetimeScope> IEntryPoint.LifetimeScopes => GetComponents<ILifetimeScope>();
+		public override void Compose(IScope scope)
+		{
+			if (_roots.Length == 0)
+			{
+				return;
+			}
 
-		private void OnDestroy()
+			_needCleanup = true;
+			foreach (var compositionRoot in _roots)
+			{
+				compositionRoot.Compose(scope);
+			}
+		}
+
+		public override void Release()
 		{
 			if (_needCleanup == false)
 			{
@@ -32,7 +37,7 @@ namespace Depra.Bootstrap.Scenes
 			}
 
 			_needCleanup = false;
-			foreach (var compositionRoot in _compositionRoots)
+			foreach (var compositionRoot in _roots)
 			{
 				compositionRoot.Release();
 			}
@@ -41,22 +46,9 @@ namespace Depra.Bootstrap.Scenes
 		[ContextMenu(nameof(Refill))]
 		private void Refill()
 		{
-			_compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
-			EditorUtility.SetDirty(this);
+			_roots = FindObjectsOfType<SceneCompositionRoot>(false);
+			UnityEditor.EditorUtility.SetDirty(this);
 		}
 #endif
-		void ICompositionRoot.Compose(IScope scope)
-		{
-			if (_compositionRoots.Length == 0)
-			{
-				return;
-			}
-
-			_needCleanup = true;
-			foreach (var compositionRoot in _compositionRoots)
-			{
-				compositionRoot.Compose(scope);
-			}
-		}
 	}
 }
