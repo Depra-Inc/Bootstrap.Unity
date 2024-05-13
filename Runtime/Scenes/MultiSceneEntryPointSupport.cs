@@ -10,8 +10,8 @@ using static Depra.Bootstrap.Internal.Module;
 namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
-	[AddComponentMenu(MENU_PATH + nameof(ScenesEntryPoint), DEFAULT_ORDER)]
-	public sealed class ScenesEntryPoint : SceneCompositionRoot
+	[AddComponentMenu(MENU_PATH + nameof(MultiSceneEntryPointSupport), DEFAULT_ORDER)]
+	public sealed class MultiSceneEntryPointSupport : SceneCompositionUtility
 	{
 		private IScope _scope;
 

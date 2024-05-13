@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Depra.Bootstrap.Scenes
 {
-	public abstract class SceneCompositionRoot : MonoBehaviour, ICompositionRoot, IDisposable
+	public abstract class SceneCompositionUtility : MonoBehaviour, ICompositionRoot, IDisposable
 	{
 		// Prevents the method from being called from outside the class.
 		protected private void OnDestroy() { }

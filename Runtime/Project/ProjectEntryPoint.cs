@@ -17,7 +17,7 @@ namespace Depra.Bootstrap.Project
 	public sealed partial class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
-		[SerializeField] private SceneCompositionRoot[] _projectRoots;
+		[SerializeField] private SceneCompositionRoot[] _roots;
 
 		private IContainer _container;
 		private ApplicationEntryPoint _application;
@@ -40,7 +40,7 @@ namespace Depra.Bootstrap.Project
 
 		private void OnDestroy()
 		{
-			Array.ForEach(_projectRoots, root => root.Release());
+			Array.ForEach(_roots, root => root.Release());
 			_application?.Dispose();
 
 			if (_container != null)
@@ -52,7 +52,14 @@ namespace Depra.Bootstrap.Project
 
 		private IEnumerable<ICompositionRoot> PrepareRoots()
 		{
-			foreach (var compositionRoot in _projectRoots)
+			var utilities = GetComponents<SceneCompositionUtility>();
+			foreach (var utility in utilities)
+			{
+				utility.Register();
+				yield return utility;
+			}
+
+			foreach (var compositionRoot in _roots)
 			{
 				compositionRoot.Register();
 				yield return compositionRoot;
@@ -62,7 +69,7 @@ namespace Depra.Bootstrap.Project
 		[ContextMenu(nameof(Refill))]
 		private void Refill()
 		{
-			_projectRoots = GetComponents<SceneCompositionRoot>();
+			_roots = GetComponents<SceneCompositionRoot>();
 			UnityEditor.EditorUtility.SetDirty(this);
 		}
 #endif

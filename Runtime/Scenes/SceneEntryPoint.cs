@@ -9,7 +9,7 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
-	public sealed class SceneEntryPoint : SceneCompositionRoot
+	public sealed class SceneEntryPoint : SceneCompositionUtility
 	{
 		[SerializeField] private SceneCompositionRoot[] _roots;
 
@@ -47,6 +47,7 @@ namespace Depra.Bootstrap.Scenes
 		private void Refill()
 		{
 			_roots = FindObjectsOfType<SceneCompositionRoot>(false);
+			_roots = System.Array.FindAll(_roots, root => root != this);
 			UnityEditor.EditorUtility.SetDirty(this);
 		}
 #endif
