@@ -11,7 +11,7 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(MultiSceneEntryPointSupport), DEFAULT_ORDER)]
-	public sealed class MultiSceneEntryPointSupport : SceneCompositionUtility
+	internal sealed class MultiSceneEntryPointSupport : SceneCompositionUtility
 	{
 		private IScope _scope;
 

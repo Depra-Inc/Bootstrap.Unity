@@ -9,7 +9,7 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
-	public sealed class SceneEntryPoint : SceneCompositionUtility
+	internal sealed class SceneEntryPoint : SceneCompositionUtility
 	{
 		[SerializeField] private SceneCompositionRoot[] _roots;
 
