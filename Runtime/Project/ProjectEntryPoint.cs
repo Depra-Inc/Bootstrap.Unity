@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections.Generic;
 using Depra.Bootstrap.Scene;
 using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using static Depra.Bootstrap.Internal.Module;
@@ -51,7 +51,10 @@ namespace Depra.Bootstrap.Project
 
 			foreach (var scope in _projectScopes)
 			{
-				scope.Dispose();
+				if (scope is IDisposable disposable)
+				{
+					disposable.Dispose();
+				}
 			}
 
 			_application?.Dispose();
@@ -92,7 +95,7 @@ namespace Depra.Bootstrap.Project
 		private void Refill()
 		{
 			_sceneCompositionRoots = GetComponents<SceneCompositionRoot>();
-			EditorUtility.SetDirty(this);
+			UnityEditor.EditorUtility.SetDirty(this);
 		}
 #endif
 	}
