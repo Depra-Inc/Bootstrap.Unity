@@ -5,7 +5,7 @@ using Depra.IoC.Scope;
 using UnityEngine;
 using static Depra.Bootstrap.Internal.Module;
 
-namespace Depra.Bootstrap.Scenes
+namespace Depra.Bootstrap.Scene
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
