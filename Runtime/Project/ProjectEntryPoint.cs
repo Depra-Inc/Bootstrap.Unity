@@ -8,6 +8,7 @@ using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
+using Depra.SerializeReference.Extensions;
 using UnityEngine;
 using UnityEngine.Serialization;
 using static Depra.Bootstrap.Internal.Module;
@@ -18,7 +19,12 @@ namespace Depra.Bootstrap.Project
 	public sealed partial class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
-		[SerializeField] private ProjectScope[] _projectScopes;
+
+		[SerializeReferenceDropdown]
+		[UnityEngine.SerializeReference]
+		private ILifetimeScope[] _projectScopes;
+
+		[SerializeField] private PersistentScope[] _persistentScopes;
 
 		[FormerlySerializedAs("_roots")]
 		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots;
