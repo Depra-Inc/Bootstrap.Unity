@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Depra.Bootstrap.Internal.Module;
 
-namespace Depra.Bootstrap.Scenes
+namespace Depra.Bootstrap.Scene
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(MultiSceneEntryPointSupport), DEFAULT_ORDER)]
@@ -29,7 +29,7 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
+		private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
 		{
 			if (arg0.IsValid())
 			{
@@ -40,7 +40,7 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnSceneLoaded(Scene nextScene)
+		private void OnSceneLoaded(UnityEngine.SceneManagement.Scene nextScene)
 		{
 			if (TryFindEntryPoint(nextScene, out var entryPoint))
 			{
@@ -49,7 +49,7 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnSceneUnloaded(Scene previousScene)
+		private void OnSceneUnloaded(UnityEngine.SceneManagement.Scene previousScene)
 		{
 			if (TryFindEntryPoint(previousScene, out var entryPoint))
 			{
@@ -58,7 +58,7 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private bool TryFindEntryPoint(Scene scene, out SceneEntryPoint entryPoint)
+		private bool TryFindEntryPoint(UnityEngine.SceneManagement.Scene scene, out SceneEntryPoint entryPoint)
 		{
 			foreach (var rootObject in scene.GetRootGameObjects())
 			{

@@ -1,7 +1,9 @@
 {
     "name": "Depra.Bootstrap",
     "rootNamespace": "Depra.Bootstrap",
-    "references": [],
+    "references": [
+        "GUID:d4770dd4eaf4dc9469ce95e304152de6"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -10,7 +12,6 @@
         "Depra.IoC.dll",
         "Depra.IoC.QoL.dll",
         "Depra.IoC.Composition.dll",
-        "Depra.Assets.dll",
         "Depra.Loading.dll"
     ],
     "autoReferenced": true,
