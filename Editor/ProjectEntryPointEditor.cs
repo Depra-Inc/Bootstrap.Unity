@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using Depra.Bootstrap.Internal;
 using Depra.Bootstrap.Project;
 using UnityEditor;
 using UnityEngine;
@@ -28,6 +29,6 @@ namespace Depra.Bootstrap.Editor
 			}
 		}
 
-		internal static void Select() => Selection.activeObject = ProjectEntryPointFactory.Original();
+		internal static void Select() => Selection.activeObject = Bootstrapper.Factory.Original();
 	}
 }

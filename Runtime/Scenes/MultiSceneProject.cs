@@ -11,8 +11,8 @@ using UnityEngine.SceneManagement;
 namespace Depra.Bootstrap.Scenes
 {
 	[Serializable]
-	[SerializeReferenceMenuPath(nameof(MultiSceneUnity))]
-	public sealed class MultiSceneUnity : ICompositionRoot, IDisposable
+	[SerializeReferenceMenuPath(nameof(MultiSceneProject))]
+	public sealed class MultiSceneProject : ICompositionRoot, IDisposable
 	{
 		private IScope _scope;
 
