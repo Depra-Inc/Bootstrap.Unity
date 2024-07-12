@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections.Generic;
 using Depra.IoC.Composition;
 using Depra.SerializeReference.Extensions;
@@ -12,11 +13,15 @@ namespace Depra.Bootstrap.Project
 	{
 		[SerializeReferenceDropdown]
 		[UnityEngine.SerializeReference]
-		internal ILifetimeScope[] _scopes;
+		private ILifetimeScope[] _scopes = Array.Empty<ILifetimeScope>();
+
+		[SerializeReferenceDropdown]
+		[UnityEngine.SerializeReference]
+		private ICompositionRoot[] _compositionRoots = Array.Empty<ICompositionRoot>();
 
 		internal const string RELATIVE_PATH = "Project Context";
 
-		internal static IEntryPointContext Load()
+		internal static ProjectContext Load()
 		{
 			var context = Resources.Load<ProjectContext>(RELATIVE_PATH);
 			if (context == null)
@@ -27,6 +32,7 @@ namespace Depra.Bootstrap.Project
 			return context;
 		}
 
-		IReadOnlyCollection<ILifetimeScope> IEntryPointContext.LifetimeScopes => _scopes;
+		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => _scopes;
+		public IReadOnlyCollection<ICompositionRoot> CompositionRoots => _compositionRoots;
 	}
 }

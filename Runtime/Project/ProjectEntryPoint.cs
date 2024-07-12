@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections.Generic;
 using Depra.Bootstrap.Scene;
 using Depra.IoC;
@@ -12,11 +13,11 @@ using static Depra.Bootstrap.Internal.Module;
 
 namespace Depra.Bootstrap.Project
 {
-	[AddComponentMenu(MENU_PATH + RESOURCES_PATH, DEFAULT_ORDER)]
+	[AddComponentMenu(MENU_PATH + RELATIVE_PATH, DEFAULT_ORDER)]
 	public sealed partial class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
-		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots;
+		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots = Array.Empty<SceneCompositionRoot>();
 
 		private IContainer _container;
 		private IEnumerable<ILifetimeScope> _allScopes;
@@ -30,9 +31,13 @@ namespace Depra.Bootstrap.Project
 			}
 
 			var builder = new ContainerBuilder(new LambdaBasedActivationBuilder());
-			ConfigureAll(builder, _allScopes = CollectScopes());
+			var projectContext = ProjectContext.Load();
+			_allScopes = CollectScopes(projectContext);
+			_allRoots = CollectRoots(projectContext);
+
+			ConfigureAll(builder, _allScopes);
 			_container = builder.Build();
-			ComposeAll(_container.CreateScope(), _allRoots = PrepareRoots());
+			ComposeAll(_container.CreateScope(), _allRoots);
 		}
 
 		private void OnDestroy()
@@ -49,10 +54,10 @@ namespace Depra.Bootstrap.Project
 			}
 		}
 
-		private IEnumerable<ILifetimeScope> CollectScopes()
+		private IEnumerable<ILifetimeScope> CollectScopes(IEntryPointContext context)
 		{
 			var sceneScopes = GetComponents<ILifetimeScope>();
-			var projectScopes = ProjectContext.Load().LifetimeScopes;
+			var projectScopes = context.LifetimeScopes;
 			var lifetimeScopes = new List<ILifetimeScope>(projectScopes.Count + sceneScopes.Length);
 			lifetimeScopes.AddRange(sceneScopes);
 			lifetimeScopes.AddRange(projectScopes);
@@ -60,20 +65,14 @@ namespace Depra.Bootstrap.Project
 			return lifetimeScopes;
 		}
 
-		private IEnumerable<ICompositionRoot> PrepareRoots()
+		private IEnumerable<ICompositionRoot> CollectRoots(ProjectContext context)
 		{
-			var utilities = GetComponents<SceneCompositionUtility>();
-			foreach (var utility in utilities)
-			{
-				utility.Register();
-				yield return utility;
-			}
+			var projectRoots = context.CompositionRoots;
+			var roots = new List<ICompositionRoot>(projectRoots.Count + _sceneCompositionRoots.Length);
+			roots.AddRange(projectRoots);
+			roots.AddRange(_sceneCompositionRoots);
 
-			foreach (var compositionRoot in _sceneCompositionRoots)
-			{
-				compositionRoot.Register();
-				yield return compositionRoot;
-			}
+			return roots;
 		}
 #if UNITY_EDITOR
 		[ContextMenu(nameof(Refill))]

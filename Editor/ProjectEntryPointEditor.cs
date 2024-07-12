@@ -20,6 +20,6 @@ namespace Depra.Bootstrap.Editor
 			}
 		}
 
-		internal static void Select() => Selection.activeObject = ProjectBootstrap.LoadOriginal();
+		internal static void Select() => Selection.activeObject = ProjectBootstrap.LoadOrCreate();
 	}
 }

@@ -13,7 +13,7 @@ namespace Depra.Bootstrap.Project
 {
 	public sealed partial class ProjectEntryPoint
 	{
-		internal const string RESOURCES_PATH = "Project Entry Point";
+		internal const string RELATIVE_PATH = "Project Entry Point";
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void TryDispose(IEnumerable collection)

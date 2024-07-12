@@ -9,27 +9,27 @@ namespace Depra.Bootstrap.Scene
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
-	internal sealed class SceneEntryPoint : SceneCompositionUtility
+	internal sealed class SceneEntryPoint : MonoBehaviour
 	{
-		[SerializeField] private SceneCompositionRoot[] _roots;
+		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
 		private bool _needCleanup;
 
-		public override void Compose(IScope scope)
+		public void Compose(IScope scope)
 		{
-			if (_roots.Length == 0)
+			if (_compositionRoots.Length == 0)
 			{
 				return;
 			}
 
 			_needCleanup = true;
-			foreach (var compositionRoot in _roots)
+			foreach (var compositionRoot in _compositionRoots)
 			{
 				compositionRoot.Compose(scope);
 			}
 		}
 
-		public override void Release()
+		public void Release()
 		{
 			if (_needCleanup == false)
 			{
@@ -37,7 +37,7 @@ namespace Depra.Bootstrap.Scene
 			}
 
 			_needCleanup = false;
-			foreach (var compositionRoot in _roots)
+			foreach (var compositionRoot in _compositionRoots)
 			{
 				compositionRoot.Release();
 			}
@@ -46,8 +46,7 @@ namespace Depra.Bootstrap.Scene
 		[ContextMenu(nameof(Refill))]
 		private void Refill()
 		{
-			_roots = FindObjectsOfType<SceneCompositionRoot>(false);
-			_roots = System.Array.FindAll(_roots, root => root != this);
+			_compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
 			UnityEditor.EditorUtility.SetDirty(this);
 		}
 #endif

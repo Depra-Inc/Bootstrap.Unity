@@ -15,8 +15,6 @@ namespace Depra.Bootstrap.Scene
 
 		public abstract void Compose(IScope scope);
 
-		public virtual void Register() { }
-
 		public virtual void Release() { }
 
 		void IDisposable.Dispose() => Release();

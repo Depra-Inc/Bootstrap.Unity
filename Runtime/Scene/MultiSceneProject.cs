@@ -1,32 +1,20 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Runtime.CompilerServices;
+using Depra.IoC.Composition;
 using Depra.IoC.Scope;
-using UnityEngine;
+using Depra.SerializeReference.Extensions;
 using UnityEngine.SceneManagement;
-using static Depra.Bootstrap.Internal.Module;
 
 namespace Depra.Bootstrap.Scene
 {
-	[DisallowMultipleComponent]
-	[AddComponentMenu(MENU_PATH + nameof(MultiSceneEntryPointSupport), DEFAULT_ORDER)]
-	internal sealed class MultiSceneEntryPointSupport : SceneCompositionUtility
+	[Serializable]
+	[SerializeReferenceMenuPath(nameof(MultiSceneUnity))]
+	public sealed class MultiSceneUnity : ICompositionRoot, IDisposable
 	{
 		private IScope _scope;
-
-		public override void Compose(IScope scope) => _scope = scope;
-
-		public override void Register()
-		{
-			SceneManager.activeSceneChanged += OnActiveSceneChanged;
-		}
-
-		public override void Release()
-		{
-			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
-			OnSceneUnloaded(SceneManager.GetActiveScene());
-		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
@@ -70,6 +58,18 @@ namespace Depra.Bootstrap.Scene
 
 			entryPoint = null;
 			return false;
+		}
+
+		void ICompositionRoot.Compose(IScope scope)
+		{
+			_scope = scope;
+			SceneManager.activeSceneChanged += OnActiveSceneChanged;
+		}
+
+		void IDisposable.Dispose()
+		{
+			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+			OnSceneUnloaded(SceneManager.GetActiveScene());
 		}
 	}
 }

@@ -1,9 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using Depra.Bootstrap.Project;
-using Depra.IoC.Composition;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,7 +22,6 @@ namespace Depra.Bootstrap.Editor
 		private static ProjectContext Create()
 		{
 			var instance = ScriptableObject.CreateInstance<ProjectContext>();
-			instance._scopes = Array.Empty<ILifetimeScope>();
 			AssetDatabase.CreateAsset(instance, ABSOLUTE_PATH);
 			AssetDatabase.SaveAssets();
 
@@ -41,6 +38,7 @@ namespace Depra.Bootstrap.Editor
 		public override void OnGUI(string searchContext)
 		{
 			EditorGUILayout.PropertyField(_serializedSettings.FindProperty("_scopes"));
+			EditorGUILayout.PropertyField(_serializedSettings.FindProperty("_compositionRoots"));
 			_serializedSettings.ApplyModifiedPropertiesWithoutUndo();
 
 			if (GUILayout.Button("Select Entry Point"))
