@@ -6,7 +6,7 @@ using Depra.IoC.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
 
-namespace Depra.Bootstrap.Scene
+namespace Depra.Bootstrap.Scenes
 {
 	public abstract class SceneCompositionRoot : MonoBehaviour, ICompositionRoot, IDisposable
 	{

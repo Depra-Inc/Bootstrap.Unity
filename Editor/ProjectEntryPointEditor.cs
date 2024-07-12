@@ -14,12 +14,20 @@ namespace Depra.Bootstrap.Editor
 		{
 			base.OnInspectorGUI();
 
+			var entryPoint = (ProjectEntryPoint) target;
+			if (GUILayout.Button(nameof(ProjectEntryPoint.Refill)))
+			{
+				entryPoint.Refill();
+				Undo.RecordObject(target, nameof(ProjectEntryPoint.Refill));
+				EditorUtility.SetDirty(target);
+			}
+
 			if (GUILayout.Button("Open Project Context"))
 			{
 				SettingsService.OpenProjectSettings(ProjectContextProvider.SETTINGS_PATH);
 			}
 		}
 
-		internal static void Select() => Selection.activeObject = ProjectBootstrap.LoadOrCreate();
+		internal static void Select() => Selection.activeObject = ProjectEntryPointFactory.Original();
 	}
 }

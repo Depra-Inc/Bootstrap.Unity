@@ -8,7 +8,7 @@ using Depra.IoC.Scope;
 using Depra.SerializeReference.Extensions;
 using UnityEngine.SceneManagement;
 
-namespace Depra.Bootstrap.Scene
+namespace Depra.Bootstrap.Scenes
 {
 	[Serializable]
 	[SerializeReferenceMenuPath(nameof(MultiSceneUnity))]
@@ -17,7 +17,7 @@ namespace Depra.Bootstrap.Scene
 		private IScope _scope;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
+		private void OnActiveSceneChanged(Scene arg0, Scene arg1)
 		{
 			if (arg0.IsValid())
 			{
@@ -28,7 +28,7 @@ namespace Depra.Bootstrap.Scene
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnSceneLoaded(UnityEngine.SceneManagement.Scene nextScene)
+		private void OnSceneLoaded(Scene nextScene)
 		{
 			if (TryFindEntryPoint(nextScene, out var entryPoint))
 			{
@@ -37,7 +37,7 @@ namespace Depra.Bootstrap.Scene
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void OnSceneUnloaded(UnityEngine.SceneManagement.Scene previousScene)
+		private void OnSceneUnloaded(Scene previousScene)
 		{
 			if (TryFindEntryPoint(previousScene, out var entryPoint))
 			{
@@ -46,7 +46,7 @@ namespace Depra.Bootstrap.Scene
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private bool TryFindEntryPoint(UnityEngine.SceneManagement.Scene scene, out SceneEntryPoint entryPoint)
+		private bool TryFindEntryPoint(Scene scene, out SceneEntryPoint entryPoint)
 		{
 			foreach (var rootObject in scene.GetRootGameObjects())
 			{

@@ -5,7 +5,7 @@ using Depra.IoC.Scope;
 using UnityEngine;
 using static Depra.Bootstrap.Internal.Module;
 
-namespace Depra.Bootstrap.Scene
+namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
@@ -42,13 +42,9 @@ namespace Depra.Bootstrap.Scene
 				compositionRoot.Release();
 			}
 		}
+
 #if UNITY_EDITOR
-		[ContextMenu(nameof(Refill))]
-		private void Refill()
-		{
-			_compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
-			UnityEditor.EditorUtility.SetDirty(this);
-		}
+		internal void Refill() => _compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
 #endif
 	}
 }
