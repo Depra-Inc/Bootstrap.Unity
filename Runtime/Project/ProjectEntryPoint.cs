@@ -1,36 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using System.Collections.Generic;
 using Depra.Bootstrap.Scene;
 using Depra.IoC;
 using Depra.IoC.Activation;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
-using Depra.SerializeReference.Extensions;
 using UnityEngine;
-using UnityEngine.Serialization;
 using static Depra.Bootstrap.Internal.Module;
 
 namespace Depra.Bootstrap.Project
 {
-	[AddComponentMenu(MENU_PATH + nameof(ProjectEntryPoint), DEFAULT_ORDER)]
+	[AddComponentMenu(MENU_PATH + RESOURCES_PATH, DEFAULT_ORDER)]
 	public sealed partial class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
-
-		[SerializeReferenceDropdown]
-		[UnityEngine.SerializeReference]
-		private ILifetimeScope[] _projectScopes;
-
-		[SerializeField] private PersistentScope[] _persistentScopes;
-
-		[FormerlySerializedAs("_roots")]
 		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots;
 
 		private IContainer _container;
-		private ApplicationEntryPoint _application;
+		private IEnumerable<ILifetimeScope> _allScopes;
+		private IEnumerable<ICompositionRoot> _allRoots;
 
 		private void Awake()
 		{
@@ -40,30 +30,18 @@ namespace Depra.Bootstrap.Project
 			}
 
 			var builder = new ContainerBuilder(new LambdaBasedActivationBuilder());
-			_application = new ApplicationEntryPoint(
-				lifetimeScopes: CollectScopes(),
-				compositionRoots: PrepareRoots());
-			_application.Configure(builder);
+			ConfigureAll(builder, _allScopes = CollectScopes());
 			_container = builder.Build();
-			_application.Compose(_container.CreateScope());
+			ComposeAll(_container.CreateScope(), _allRoots = PrepareRoots());
 		}
 
 		private void OnDestroy()
 		{
-			foreach (var compositionRoot in _sceneCompositionRoots)
-			{
-				compositionRoot.Release();
-			}
+			TryDispose(_allRoots);
+			_allRoots = null;
+			TryDispose(_allScopes);
+			_allScopes = null;
 
-			foreach (var scope in _projectScopes)
-			{
-				if (scope is IDisposable disposable)
-				{
-					disposable.Dispose();
-				}
-			}
-
-			_application?.Dispose();
 			if (_container != null)
 			{
 				_container.Dispose();
@@ -74,9 +52,10 @@ namespace Depra.Bootstrap.Project
 		private IEnumerable<ILifetimeScope> CollectScopes()
 		{
 			var sceneScopes = GetComponents<ILifetimeScope>();
-			var lifetimeScopes = new List<ILifetimeScope>(_projectScopes.Length + sceneScopes.Length);
-			lifetimeScopes.AddRange(_projectScopes);
+			var projectScopes = ProjectContext.Load().LifetimeScopes;
+			var lifetimeScopes = new List<ILifetimeScope>(projectScopes.Count + sceneScopes.Length);
 			lifetimeScopes.AddRange(sceneScopes);
+			lifetimeScopes.AddRange(projectScopes);
 
 			return lifetimeScopes;
 		}
