@@ -19,9 +19,7 @@ namespace Depra.Bootstrap.Project
 		[UnityEngine.SerializeReference]
 		private ICompositionRoot[] _compositionRoots = Array.Empty<ICompositionRoot>();
 
-		internal const string RELATIVE_PATH = "Project Context";
-
 		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => _scopes;
-		public IReadOnlyCollection<ICompositionRoot> CompositionRoots => _compositionRoots;
+		public IEnumerable<ICompositionRoot> CompositionRoots => _compositionRoots;
 	}
 }

@@ -11,13 +11,11 @@ using static Depra.Bootstrap.Internal.Module;
 
 namespace Depra.Bootstrap.Project
 {
-	[AddComponentMenu(MENU_PATH + RELATIVE_PATH, DEFAULT_ORDER)]
+	[AddComponentMenu(MENU_PATH + "Project Entry Point", DEFAULT_ORDER)]
 	public sealed class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
 		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots;
-
-		internal const string RELATIVE_PATH = "Project Entry Point";
 
 		private IContainer _container;
 		private ProjectContext _context;
@@ -43,7 +41,11 @@ namespace Depra.Bootstrap.Project
 		private void OnDestroy()
 		{
 			DisposeAll(_sceneCompositionRoots);
-			DisposeAll(_context.CompositionRoots);
+			if (_context)
+			{
+				DisposeAll(_context.CompositionRoots);
+				_context = null;
+			}
 
 			if (_container != null)
 			{

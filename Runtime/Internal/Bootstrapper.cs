@@ -17,13 +17,7 @@ namespace Depra.Bootstrap.Internal
 	internal static class Bootstrapper
 	{
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-		private static void InitializeOnLoad()
-		{
-			if (!Object.FindAnyObjectByType<ProjectEntryPoint>(FindObjectsInactive.Include))
-			{
-				Factory.Instantiate().Compose();
-			}
-		}
+		private static void InitializeOnLoad() => Factory.GetOrCreate().Compose();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void ConfigureAll(IContainerBuilder builder, IEnumerable<ILifetimeScope> scopes)
@@ -67,43 +61,29 @@ namespace Depra.Bootstrap.Internal
 
 		internal static class Factory
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public static ProjectEntryPoint Instantiate()
-			{
-				var original = Original();
-				if (original == null)
-				{
-					Logger.Verbose($"Prefab not found at path: '{ProjectEntryPoint.RELATIVE_PATH}'");
-					return null;
-				}
+			private const string CONTEXT_NAME = "Project Context";
+			private const string ENTRY_POINT_NAME = "Project Entry Point";
+			private const string ENTRY_POINT_PATH = "Assets/Resources/" + ENTRY_POINT_NAME + ".prefab";
 
-				var instance = Object.Instantiate(original);
-				if (instance == null)
-				{
-					Logger.Verbose($"Failed to instantiate '{nameof(ProjectEntryPoint)}' prefab!");
-				}
-#if DEBUG || DEV_BUILD
-				instance.name = original.name;
-#endif
-				return instance;
-			}
+			public static ProjectEntryPoint GetOriginal() =>
+				LoadStaticEntryPoint() ?? Create(ENTRY_POINT_PATH);
 
-			public static ProjectEntryPoint Original() =>
-				LoadStaticEntryPoint() ?? Create($"Assets/Resources/{ProjectEntryPoint.RELATIVE_PATH}.prefab");
+			public static ProjectEntryPoint GetOrCreate() =>
+				Object.FindAnyObjectByType<ProjectEntryPoint>(FindObjectsInactive.Include) ?? Instantiate();
 
 			public static ProjectContext LoadStaticContext()
 			{
-				var context = Resources.Load<ProjectContext>(ProjectContext.RELATIVE_PATH);
+				var context = Resources.Load<ProjectContext>(CONTEXT_NAME);
 				if (context == null)
 				{
-					Logger.Verbose($"Project context not found at '{ProjectContext.RELATIVE_PATH}'");
+					Logger.Verbose($"Project context not found at '{CONTEXT_NAME}'");
 				}
 
 				return context;
 			}
 
 			private static ProjectEntryPoint LoadStaticEntryPoint() =>
-				Resources.Load<ProjectEntryPoint>(ProjectEntryPoint.RELATIVE_PATH);
+				Resources.Load<ProjectEntryPoint>(ENTRY_POINT_NAME);
 
 			private static ProjectEntryPoint Create(string relativePath)
 			{
@@ -123,13 +103,34 @@ namespace Depra.Bootstrap.Internal
 #endif
 				return null;
 			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			private static ProjectEntryPoint Instantiate()
+			{
+				var original = GetOriginal();
+				if (original == null)
+				{
+					Logger.Verbose($"Prefab not found at path: '{ENTRY_POINT_NAME}'");
+					return null;
+				}
+
+				var instance = Object.Instantiate(original);
+				if (instance == null)
+				{
+					Logger.Verbose($"Failed to instantiate '{nameof(ProjectEntryPoint)}' prefab!");
+				}
+#if DEBUG || DEV_BUILD
+				instance.name = original.name;
+#endif
+				return instance;
+			}
 		}
 
-		internal static class Logger
+		private static class Logger
 		{
 			public static void Verbose(string message)
 			{
-				const string LOG_FORMAT = "[Project Bootstrapper] {0}";
+				const string LOG_FORMAT = "[Bootstrapper] {0}";
 				Debug.LogErrorFormat(LOG_FORMAT, message);
 			}
 		}

@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using Depra.Bootstrap.Internal;
 using Depra.Bootstrap.Project;
 using UnityEditor;
 using UnityEngine;
@@ -10,10 +11,11 @@ namespace Depra.Bootstrap.Editor
 {
 	internal sealed class ProjectContextProvider : SettingsProvider
 	{
-		internal static readonly string SETTINGS_PATH = $"Project/{ProjectContext.RELATIVE_PATH}";
+		internal const string SETTINGS_PATH = "Project/" + MENU_PATH;
+		private const string MENU_PATH = "Project Context";
+		private const string ABSOLUTE_PATH = "Assets/Resources/" + MENU_PATH + ".asset";
 
 		private static readonly string[] TABS = { "Scopes", "Composition Roots" };
-		private static readonly string ABSOLUTE_PATH = $"Assets/Resources/{ProjectContext.RELATIVE_PATH}.asset";
 
 		[SettingsProvider]
 		public static SettingsProvider Provide() => new ProjectContextProvider(SETTINGS_PATH);
@@ -41,11 +43,18 @@ namespace Depra.Bootstrap.Editor
 		public override void OnGUI(string searchContext)
 		{
 			EditorGUILayout.Separator();
+
 			DrawTabs();
 			_serializedSettings.ApplyModifiedPropertiesWithoutUndo();
-			if (GUILayout.Button("Select Entry Point"))
+
+			if (GUILayout.Button("Ping Context"))
 			{
-				ProjectEntryPointEditor.Select();
+				EditorGUIUtility.PingObject(_serializedSettings.targetObject);
+			}
+
+			if (GUILayout.Button("Ping Entry Point"))
+			{
+				EditorGUIUtility.PingObject(Bootstrapper.Factory.GetOriginal());
 			}
 		}
 

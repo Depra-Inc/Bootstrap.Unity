@@ -8,7 +8,7 @@ using static Depra.Bootstrap.Internal.Module;
 namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
-	[AddComponentMenu(MENU_PATH + nameof(SceneEntryPoint), DEFAULT_ORDER)]
+	[AddComponentMenu(MENU_PATH + "Scene Entry Point", DEFAULT_ORDER)]
 	internal sealed class SceneEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots;

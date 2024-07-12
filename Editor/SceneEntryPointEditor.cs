@@ -21,6 +21,11 @@ namespace Depra.Bootstrap.Editor
 				Undo.RecordObject(target, nameof(SceneEntryPoint.Refill));
 				EditorUtility.SetDirty(target);
 			}
+
+			if (GUILayout.Button("Open Project Context"))
+			{
+				SettingsService.OpenProjectSettings(ProjectContextProvider.SETTINGS_PATH);
+			}
 		}
 	}
 }
