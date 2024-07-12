@@ -14,14 +14,14 @@ namespace Depra.Bootstrap.Project
 		[UnityEngine.SerializeReference]
 		internal ILifetimeScope[] _scopes;
 
-		private const string RESOURCE_PATH = "Project Context";
+		internal const string RELATIVE_PATH = "Project Context";
 
 		internal static IEntryPointContext Load()
 		{
-			var context = Resources.Load<ProjectContext>(RESOURCE_PATH);
+			var context = Resources.Load<ProjectContext>(RELATIVE_PATH);
 			if (context == null)
 			{
-				Debug.LogError($"Project context not found at {RESOURCE_PATH}");
+				Debug.LogError($"Project context not found at {RELATIVE_PATH}");
 			}
 
 			return context;
