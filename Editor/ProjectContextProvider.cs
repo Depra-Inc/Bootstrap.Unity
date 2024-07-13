@@ -12,8 +12,8 @@ namespace Depra.Bootstrap.Editor
 	internal sealed class ProjectContextProvider : SettingsProvider
 	{
 		internal const string SETTINGS_PATH = "Project/" + MENU_PATH;
-		private const string MENU_PATH = "Project Context";
-		private const string ABSOLUTE_PATH = "Assets/Resources/" + MENU_PATH + ".asset";
+		private const string MENU_PATH = nameof(Bootstrap);
+		private const string ABSOLUTE_PATH = "Assets/Resources/Project Context.asset";
 
 		private static readonly string[] TABS = { "Scopes", "Composition Roots" };
 
