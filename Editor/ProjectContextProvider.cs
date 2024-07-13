@@ -46,16 +46,7 @@ namespace Depra.Bootstrap.Editor
 
 			DrawTabs();
 			_serializedSettings.ApplyModifiedPropertiesWithoutUndo();
-
-			if (GUILayout.Button("Ping Context"))
-			{
-				EditorGUIUtility.PingObject(_serializedSettings.targetObject);
-			}
-
-			if (GUILayout.Button("Ping Entry Point"))
-			{
-				EditorGUIUtility.PingObject(Bootstrapper.Factory.GetOriginal());
-			}
+			DrawButtons();
 		}
 
 		private void DrawTabs()
@@ -72,6 +63,22 @@ namespace Depra.Bootstrap.Editor
 						new GUIContent(TABS[1], EditorIcons.SCOPE));
 					break;
 			}
+		}
+
+		private void DrawButtons()
+		{
+			EditorGUILayout.BeginHorizontal();
+			if (GUILayout.Button("Ping Context"))
+			{
+				EditorGUIUtility.PingObject(_serializedSettings.targetObject);
+			}
+
+			if (GUILayout.Button("Ping Entry Point"))
+			{
+				EditorGUIUtility.PingObject(Bootstrapper.Factory.GetOriginal());
+			}
+
+			EditorGUILayout.EndHorizontal();
 		}
 	}
 }
