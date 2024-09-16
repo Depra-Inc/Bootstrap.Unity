@@ -40,9 +40,12 @@ namespace Depra.Bootstrap.Scenes
 
 			var activation = new LambdaBasedActivationBuilder();
 			var containerBuilder = new ContainerBuilder(activation);
-			foreach (var scope in entryPoint.Context.LifetimeScopes)
+			if (entryPoint.Context != null)
 			{
-				scope.Configure(containerBuilder);
+				foreach (var scope in entryPoint.Context.LifetimeScopes)
+				{
+					scope.Configure(containerBuilder);
+				}
 			}
 
 			var sceneContainer = containerBuilder.Build();
