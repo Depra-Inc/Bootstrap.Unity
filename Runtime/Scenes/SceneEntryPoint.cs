@@ -16,7 +16,7 @@ namespace Depra.Bootstrap.Scenes
 	[AddComponentMenu(MENU_PATH + "Scene Entry Point", DEFAULT_ORDER)]
 	internal sealed class SceneEntryPoint : MonoBehaviour
 	{
-		[SerializeField] private SerializedContext _context;
+		[SerializeField] private SceneContext _context;
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
 		private bool _needCleanup;
@@ -56,7 +56,7 @@ namespace Depra.Bootstrap.Scenes
 #endif
 
 		[Serializable]
-		private sealed class SerializedContext : IEntryPointContext
+		private sealed class SceneContext : IEntryPointContext
 		{
 			[SerializeField] private SceneScope[] _sceneScopes;
 
