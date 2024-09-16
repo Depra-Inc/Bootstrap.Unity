@@ -13,6 +13,6 @@ namespace Depra.Bootstrap.Scenes
 		[UnityEngine.SerializeReference]
 		private ILifetimeScope[] _scopes;
 
-		IReadOnlyCollection<ILifetimeScope> IEntryPointContext.LifetimeScopes => _scopes;
+		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => _scopes;
 	}
 }

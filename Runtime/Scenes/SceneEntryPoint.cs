@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System.Collections.Generic;
 using Depra.IoC.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
@@ -10,12 +11,24 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + "Scene Entry Point", DEFAULT_ORDER)]
-	internal sealed class SceneEntryPoint : MonoBehaviour
+	internal sealed class SceneEntryPoint : MonoBehaviour, IEntryPointContext
 	{
 		[SerializeField] private SceneContext _context;
+		[SerializeField] private SceneScope[] _lifetimeScopes;
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
 		private bool _needCleanup;
+
+		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes
+		{
+			get
+			{
+				var mergedScopes = new List<ILifetimeScope>();
+				mergedScopes.AddRange(_lifetimeScopes);
+				mergedScopes.AddRange(_context.LifetimeScopes);
+				return mergedScopes;
+			}
+		}
 
 		public IEntryPointContext Context => _context;
 
