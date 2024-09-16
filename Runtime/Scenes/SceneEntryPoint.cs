@@ -1,10 +1,12 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Depra.IoC.Composition;
 using Depra.IoC.Scope;
+using Depra.SerializeReference.Extensions;
 using UnityEngine;
 using static Depra.Bootstrap.Internal.Module;
 
@@ -12,15 +14,14 @@ namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu(MENU_PATH + "Scene Entry Point", DEFAULT_ORDER)]
-	internal sealed class SceneEntryPoint : MonoBehaviour, IEntryPointContext
+	internal sealed class SceneEntryPoint : MonoBehaviour
 	{
-		[SerializeField] private SceneContext _context;
-		[SerializeField] private SceneScope[] _lifetimeScopes;
+		[SerializeField] private SerializedContext _context;
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
 		private bool _needCleanup;
 
-		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => CombineScopes();
+		public IEntryPointContext Context => _context;
 
 		public void Compose(IScope scope)
 		{
@@ -54,19 +55,30 @@ namespace Depra.Bootstrap.Scenes
 		internal void Refill() => _compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
 #endif
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private IReadOnlyCollection<ILifetimeScope> CombineScopes()
+		[Serializable]
+		private sealed class SerializedContext : IEntryPointContext
 		{
-			if (_context == false || _context.LifetimeScopes.Count == 0)
+			[SerializeField] private SceneScope[] _sceneScopes;
+
+			[SerializeReferenceDropdown]
+			[UnityEngine.SerializeReference]
+			private ILifetimeScope[] _serializedScopes;
+
+			[SerializeField] private PersistentScope[] _persistentScopes;
+
+			IReadOnlyCollection<ILifetimeScope> IEntryPointContext.LifetimeScopes => MergeScopes();
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			private IReadOnlyCollection<ILifetimeScope> MergeScopes()
 			{
-				return _lifetimeScopes;
+				var finalLength = _sceneScopes.Length + _serializedScopes.Length + _persistentScopes.Length;
+				var mergedScopes = new List<ILifetimeScope>(finalLength);
+				mergedScopes.AddRange(_sceneScopes);
+				mergedScopes.AddRange(_serializedScopes);
+				mergedScopes.AddRange(_persistentScopes);
+
+				return mergedScopes;
 			}
-
-			var mergedScopes = new List<ILifetimeScope>();
-			mergedScopes.AddRange(_lifetimeScopes);
-			mergedScopes.AddRange(_context.LifetimeScopes);
-
-			return mergedScopes;
 		}
 	}
 }

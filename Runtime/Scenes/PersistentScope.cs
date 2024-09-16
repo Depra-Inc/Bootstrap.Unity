@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Depra.Bootstrap.Scenes
 {
-	public abstract class SceneScope : MonoBehaviour, ILifetimeScope
+	public abstract class PersistentScope : ScriptableObject, ILifetimeScope
 	{
 		public abstract void Configure(IContainerBuilder builder);
 	}
