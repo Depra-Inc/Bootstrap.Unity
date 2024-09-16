@@ -2,6 +2,7 @@
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Depra.IoC.Composition;
 using Depra.IoC.Scope;
 using UnityEngine;
@@ -19,18 +20,7 @@ namespace Depra.Bootstrap.Scenes
 
 		private bool _needCleanup;
 
-		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes
-		{
-			get
-			{
-				var mergedScopes = new List<ILifetimeScope>();
-				mergedScopes.AddRange(_lifetimeScopes);
-				mergedScopes.AddRange(_context.LifetimeScopes);
-				return mergedScopes;
-			}
-		}
-
-		public IEntryPointContext Context => _context;
+		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => CombineScopes();
 
 		public void Compose(IScope scope)
 		{
@@ -63,5 +53,20 @@ namespace Depra.Bootstrap.Scenes
 #if UNITY_EDITOR
 		internal void Refill() => _compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
 #endif
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private IReadOnlyCollection<ILifetimeScope> CombineScopes()
+		{
+			if (_context == false || _context.LifetimeScopes.Count == 0)
+			{
+				return _lifetimeScopes;
+			}
+
+			var mergedScopes = new List<ILifetimeScope>();
+			mergedScopes.AddRange(_lifetimeScopes);
+			mergedScopes.AddRange(_context.LifetimeScopes);
+
+			return mergedScopes;
+		}
 	}
 }
