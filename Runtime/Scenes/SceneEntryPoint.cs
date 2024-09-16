@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Depra.IoC.Composition;
 using Depra.IoC.Scope;
@@ -58,26 +59,31 @@ namespace Depra.Bootstrap.Scenes
 		[Serializable]
 		private sealed class SceneContext : IEntryPointContext
 		{
-			[SerializeField] private SceneScope[] _sceneScopes;
+			[SerializeField] private SceneScope[] _sceneScopes = Array.Empty<SceneScope>();
 
 			[SerializeReferenceDropdown]
 			[UnityEngine.SerializeReference]
-			private ILifetimeScope[] _serializedScopes;
+			private ILifetimeScope[] _serializedScopes = Array.Empty<ILifetimeScope>();
 
-			[SerializeField] private PersistentScope[] _persistentScopes;
+			[SerializeField] private PersistentScope[] _persistentScopes = Array.Empty<PersistentScope>();
 
-			IReadOnlyCollection<ILifetimeScope> IEntryPointContext.LifetimeScopes => MergeScopes();
+			// ReSharper disable CoVariantArrayConversion
+			IReadOnlyCollection<ILifetimeScope> IEntryPointContext.LifetimeScopes =>
+				ConcatArrays(_sceneScopes, _serializedScopes, _persistentScopes);
+			// ReSharper restore CoVariantArrayConversion
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			private IReadOnlyCollection<ILifetimeScope> MergeScopes()
+			public static T[] ConcatArrays<T>(params T[][] arrays)
 			{
-				var finalLength = _sceneScopes.Length + _serializedScopes.Length + _persistentScopes.Length;
-				var mergedScopes = new List<ILifetimeScope>(finalLength);
-				mergedScopes.AddRange(_sceneScopes);
-				mergedScopes.AddRange(_serializedScopes);
-				mergedScopes.AddRange(_persistentScopes);
+				var position = 0;
+				var outputArray = new T[arrays.Sum(a => a.Length)];
+				foreach (var current in arrays)
+				{
+					Array.Copy(current, 0, outputArray, position, current.Length);
+					position += current.Length;
+				}
 
-				return mergedScopes;
+				return outputArray;
 			}
 		}
 	}
