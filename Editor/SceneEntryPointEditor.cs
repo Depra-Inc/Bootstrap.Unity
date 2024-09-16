@@ -7,18 +7,18 @@ using UnityEngine;
 
 namespace Depra.Bootstrap.Editor
 {
-	[CustomEditor(typeof(SceneEntryPoint))]
+	[CustomEditor(typeof(SceneContext))]
 	internal sealed class SceneEntryPointEditor : UnityEditor.Editor
 	{
 		public override void OnInspectorGUI()
 		{
 			base.OnInspectorGUI();
 
-			var entryPoint = (SceneEntryPoint) target;
-			if (GUILayout.Button(nameof(SceneEntryPoint.Refill)))
+			var entryPoint = (SceneContext) target;
+			if (GUILayout.Button(nameof(SceneContext.Refill)))
 			{
 				entryPoint.Refill();
-				Undo.RecordObject(target, nameof(SceneEntryPoint.Refill));
+				Undo.RecordObject(target, nameof(SceneContext.Refill));
 				EditorUtility.SetDirty(target);
 			}
 
