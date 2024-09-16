@@ -40,7 +40,7 @@ namespace Depra.Bootstrap.Scenes
 
 			var activation = new LambdaBasedActivationBuilder();
 			var containerBuilder = new ContainerBuilder(activation);
-			foreach (var scope in entryPoint.LifetimeScopes)
+			foreach (var scope in entryPoint.Context.LifetimeScopes)
 			{
 				scope.Configure(containerBuilder);
 			}
@@ -60,17 +60,17 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private bool TryFindEntryPoint(Scene scene, out SceneContext context)
+		private bool TryFindEntryPoint(Scene scene, out SceneEntryPoint entryPoint)
 		{
 			foreach (var rootObject in scene.GetRootGameObjects())
 			{
-				if (rootObject.TryGetComponent(out context))
+				if (rootObject.TryGetComponent(out entryPoint))
 				{
 					return true;
 				}
 			}
 
-			context = null;
+			entryPoint = null;
 			return false;
 		}
 
