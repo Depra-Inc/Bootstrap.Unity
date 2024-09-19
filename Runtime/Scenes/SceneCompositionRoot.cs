@@ -10,6 +10,7 @@ namespace Depra.Bootstrap.Scenes
 {
 	public abstract class SceneCompositionRoot : MonoBehaviour, ICompositionRoot, IDisposable
 	{
+		// ReSharper disable once Unity.RedundantEventFunction
 		// Prevents the method from being called from outside the class.
 		protected private void OnDestroy() { }
 
