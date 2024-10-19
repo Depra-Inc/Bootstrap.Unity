@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Depra.Bootstrap.Project;
+using Depra.Bootstrap.Scenes;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
 using Depra.IoC.Scope;
@@ -23,6 +24,15 @@ namespace Depra.Bootstrap.Internal
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void ConfigureAll(IContainerBuilder builder, IEnumerable<ILifetimeScope> scopes)
+		{
+			foreach (var scope in scopes)
+			{
+				scope.Configure(builder);
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void ConfigureAll(IContainerBuilder builder, IEnumerable<SceneScope> scopes)
 		{
 			foreach (var scope in scopes)
 			{

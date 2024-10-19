@@ -15,6 +15,7 @@ namespace Depra.Bootstrap.Project
 	public sealed class ProjectEntryPoint : MonoBehaviour
 	{
 		[SerializeField] private bool _dontDestroyOnLoad;
+		[SerializeField] private SceneScope[] _sceneScopes;
 		[SerializeField] private SceneCompositionRoot[] _sceneCompositionRoots;
 
 		private IContainer _container;
@@ -31,6 +32,7 @@ namespace Depra.Bootstrap.Project
 
 			_context = Factory.LoadStaticContext();
 			ConfigureAll(builder, _context.LifetimeScopes);
+			ConfigureAll(builder, _sceneScopes);
 
 			_container = builder.Build();
 			var scope = _container.CreateScope();
