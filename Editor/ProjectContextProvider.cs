@@ -11,16 +11,15 @@ namespace Depra.Bootstrap.Editor
 {
 	internal sealed class ProjectContextProvider : SettingsProvider
 	{
-		internal const string SETTINGS_PATH = "Project/" + MENU_PATH;
-		private const string MENU_PATH = nameof(Bootstrap);
+		internal const string MENU_PATH = "Project/" + nameof(Bootstrap);
+		private const SettingsScope MENU_SCOPE = SettingsScope.Project;
 		private const string ABSOLUTE_PATH = "Assets/Resources/Project Context.asset";
-
-		private static readonly string[] TABS = { "Scopes", "Composition Roots" };
+		private static readonly string[] TABS = { "Scopes", "Composition Roots", "Misc" };
 
 		[SettingsProvider]
-		public static SettingsProvider Provide() => new ProjectContextProvider(SETTINGS_PATH);
+		public static SettingsProvider Provide() => new ProjectContextProvider(MENU_PATH);
 
-		private static ProjectContext LoadOrCreate() =>
+		internal static ProjectContext LoadOrCreate() =>
 			AssetDatabase.LoadAssetAtPath<ProjectContext>(ABSOLUTE_PATH) ?? Create();
 
 		private static ProjectContext Create()
@@ -35,7 +34,7 @@ namespace Depra.Bootstrap.Editor
 		private int _tabIndex;
 		private SerializedObject _serializedSettings;
 
-		private ProjectContextProvider(string path, SettingsScope scope = SettingsScope.Project) : base(path, scope) { }
+		private ProjectContextProvider(string path) : base(path, MENU_SCOPE) { }
 
 		public override void OnActivate(string searchContext, VisualElement rootElement) =>
 			_serializedSettings = new SerializedObject(LoadOrCreate());
@@ -46,6 +45,8 @@ namespace Depra.Bootstrap.Editor
 
 			DrawTabs();
 			_serializedSettings.ApplyModifiedPropertiesWithoutUndo();
+
+			EditorGUILayout.Separator();
 			DrawButtons();
 		}
 
@@ -61,6 +62,10 @@ namespace Depra.Bootstrap.Editor
 				case 1:
 					EditorGUILayout.PropertyField(_serializedSettings.FindProperty("_compositionRoots"),
 						new GUIContent(TABS[1], EditorIcons.SCOPE));
+					break;
+				case 2:
+					var initialScene = _serializedSettings.FindProperty("_initialScene");
+					initialScene.stringValue = EditorGUILayout.TextField("Initial Scene", initialScene.stringValue);
 					break;
 			}
 		}

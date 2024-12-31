@@ -19,7 +19,11 @@ namespace Depra.Bootstrap.Project
 		[UnityEngine.SerializeReference]
 		private ICompositionRoot[] _compositionRoots = Array.Empty<ICompositionRoot>();
 
+		[SerializeField] private string _initialScene;
+
 		public IReadOnlyCollection<ILifetimeScope> LifetimeScopes => _scopes;
 		public IEnumerable<ICompositionRoot> CompositionRoots => _compositionRoots;
+
+		internal string InitialScene => _initialScene;
 	}
 }

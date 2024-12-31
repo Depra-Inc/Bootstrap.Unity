@@ -24,7 +24,7 @@ namespace Depra.Bootstrap.Editor
 
 			if (GUILayout.Button("Open Context"))
 			{
-				SettingsService.OpenProjectSettings(ProjectContextProvider.SETTINGS_PATH);
+				SettingsService.OpenProjectSettings(ProjectContextProvider.MENU_PATH);
 			}
 		}
 	}
