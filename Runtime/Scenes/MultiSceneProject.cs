@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using Depra.IoC.Activation;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
-using Depra.IoC.QoL.Scope;
 using Depra.IoC.Scope;
 using Depra.SerializeReference.Extensions;
 using UnityEngine.SceneManagement;
@@ -33,7 +32,7 @@ namespace Depra.Bootstrap.Scenes
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void OnSceneLoaded(Scene nextScene)
 		{
-			if (TryFindEntryPoint(nextScene, out var entryPoint) == false)
+			if (!TryFindEntryPoint(nextScene, out var entryPoint))
 			{
 				return;
 			}
@@ -46,8 +45,8 @@ namespace Depra.Bootstrap.Scenes
 			}
 
 			var sceneContainer = containerBuilder.Build();
-			var combinedScope = new CombinedScope(_rootScope, sceneContainer.CreateScope());
-			entryPoint.Compose(combinedScope);
+			var sceneScope = sceneContainer.CreateScope(_rootScope);
+			entryPoint.Compose(sceneScope);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
