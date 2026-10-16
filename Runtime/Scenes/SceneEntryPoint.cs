@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2024-2026 Depra <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
@@ -20,12 +20,14 @@ namespace Depra.Bootstrap.Scenes
 		[SerializeField] private SceneContext _context;
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
+		private IScope _scope;
 		private bool _needCleanup;
 
 		public IEntryPointContext Context => _context;
 
 		public void Compose(IScope scope)
 		{
+			_scope = scope;
 			if (_compositionRoots.Length == 0)
 			{
 				return;
@@ -40,7 +42,8 @@ namespace Depra.Bootstrap.Scenes
 
 		public void Release()
 		{
-			if (_needCleanup == false)
+			_scope?.Dispose();
+			if (!_needCleanup)
 			{
 				return;
 			}
@@ -53,7 +56,7 @@ namespace Depra.Bootstrap.Scenes
 		}
 
 #if UNITY_EDITOR
-		internal void Refill() => _compositionRoots = FindObjectsOfType<SceneCompositionRoot>(false);
+		internal void Refill() => _compositionRoots = FindObjectsByType<SceneCompositionRoot>(FindObjectsSortMode.None);
 #endif
 
 		[Serializable]
