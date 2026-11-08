@@ -1,5 +1,5 @@
-﻿// SPDX-License-Identifier: Apache-2.0
-// © 2024 Nikolay Melnikov <n.melnikov@depra.org>
+// SPDX-License-Identifier: Apache-2.0
+// © 2024-2026 Depra <n.melnikov@depra.org>
 
 using System;
 using Depra.IoC.Composition;
@@ -12,7 +12,7 @@ namespace Depra.Bootstrap.Scenes
 	{
 		// ReSharper disable once Unity.RedundantEventFunction
 		// Prevents the method from being called from outside the class.
-		protected private void OnDestroy() { }
+		private protected void OnDestroy() { }
 
 		public abstract void Compose(IScope scope);
 
@@ -20,4 +20,4 @@ namespace Depra.Bootstrap.Scenes
 
 		void IDisposable.Dispose() => Release();
 	}
-}
+}

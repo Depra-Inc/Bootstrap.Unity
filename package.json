@@ -1,8 +1,8 @@
 {
 	"name": "com.depra.bootstrap.unity",
-	"version": "0.2.15",
+	"version": "0.3.0-pre.1",
 	"displayName": "Depra.Bootstrap",
-	"description": "",
+	"description": "Starts a Unity game from code: one Main with staged installation and composition, an optional Boot Scene and per-scene contexts.",
 	"unity": "2022.3",
 	"license": "Apache-2.0",
 	"dependencies": {
