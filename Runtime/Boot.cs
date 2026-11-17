@@ -10,6 +10,9 @@ namespace Depra.Bootstrap
 {
 	public static class Boot
 	{
+		internal const int DEFAULT_ORDER = 52;
+		internal const string MENU_PATH = "Depra/Bootstrap/";
+
 		public static void Start<TConfig>(TConfig config,
 			Action<ProjectInstallation, TConfig> install,
 			Action<ProjectComposition, TConfig> compose)

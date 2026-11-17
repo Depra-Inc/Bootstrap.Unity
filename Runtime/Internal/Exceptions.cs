@@ -40,6 +40,12 @@ namespace Depra.Bootstrap
 			$"Scene '{scene}' has more than one Scene Context.") { }
 	}
 
+	internal sealed class MissingSceneContextException : InvalidOperationException
+	{
+		public MissingSceneContextException(string prefab) : base(
+			$"Prefab '{prefab}' has no Scene Context on its root.") { }
+	}
+
 	internal sealed class SceneAlreadyComposedException : InvalidOperationException
 	{
 		public SceneAlreadyComposedException(string scene) : base($"Scene '{scene}' has already been composed.") { }

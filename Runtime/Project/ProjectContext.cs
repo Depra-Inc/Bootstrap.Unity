@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Depra.Bootstrap.Scenes;
 using Depra.IoC;
 using Depra.IoC.Composition;
@@ -22,6 +23,7 @@ namespace Depra.Bootstrap
 		private IContainer _container;
 		private List<ICompositionRoot> _waitingForStartScene;
 		private SceneContext _screen;
+		private ISceneEntryPoint[] _entryPoints = Array.Empty<ISceneEntryPoint>();
 
 		public T Enter<T>(T stage)
 		{
@@ -67,6 +69,7 @@ namespace Depra.Bootstrap
 
 		public void ComposeScenes(SceneContext context)
 		{
+			_entryPoints = ResolveEntryPoints();
 			if (context)
 			{
 				_owned.Add(new Releaser(context.Release));
@@ -87,6 +90,7 @@ namespace Depra.Bootstrap
 			Application.quitting -= Stop;
 			SceneManager.sceneLoaded -= OnSceneLoaded;
 			_stage = null;
+			_entryPoints = Array.Empty<ISceneEntryPoint>();
 			_waitingForStartScene = null;
 
 			var errors = new List<Exception>();
@@ -109,7 +113,7 @@ namespace Depra.Bootstrap
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
 			// Release the previous screen first: screens share the ECS worlds and the service locator.
-			if (SceneContext.TryFind(scene, out var screen))
+			if (SceneContext.TryFind(scene, out var screen) || TryEnter(scene, out screen))
 			{
 				if (_screen && _screen != screen)
 				{
@@ -138,6 +142,33 @@ namespace Depra.Bootstrap
 			{
 				root.Compose(_scope);
 			}
+		}
+
+		// Depra.IoC resolves IEnumerable<T> only for two or more registrations.
+		private ISceneEntryPoint[] ResolveEntryPoints()
+		{
+			if (_scope.CanResolve(typeof(IEnumerable<ISceneEntryPoint>)))
+			{
+				return _scope.Resolve<IEnumerable<ISceneEntryPoint>>().ToArray();
+			}
+
+			return _scope.CanResolve(typeof(ISceneEntryPoint))
+				? new[] { _scope.Resolve<ISceneEntryPoint>() }
+				: Array.Empty<ISceneEntryPoint>();
+		}
+
+		private bool TryEnter(Scene scene, out SceneContext context)
+		{
+			foreach (var entryPoint in _entryPoints)
+			{
+				if (entryPoint.TryEnter(scene, out var prefab))
+				{
+					return SceneContext.Spawn(prefab, scene, out context);
+				}
+			}
+
+			context = null;
+			return false;
 		}
 
 		private static void Dispose(IDisposable disposable, ICollection<Exception> errors)

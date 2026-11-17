@@ -23,10 +23,6 @@ namespace Depra.Bootstrap
 			_project = project;
 		}
 
-		/// <summary>
-		/// Installs the installers of the Project Context into the project container.
-		/// Does nothing when no Project Context is set in Project Settings > Bootstrap.
-		/// </summary>
 		public void InstallProjectContext()
 		{
 			_project.EnsureCurrent(this);
@@ -66,4 +62,4 @@ namespace Depra.Bootstrap
 			return _project.Enter(new ProjectComposition(_project, _context));
 		}
 	}
-}
+}

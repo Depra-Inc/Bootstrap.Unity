@@ -3,6 +3,7 @@
 
 using Depra.IoC.QoL.Builder;
 using Depra.IoC.Scope;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Depra.Bootstrap.Scenes
@@ -14,6 +15,6 @@ namespace Depra.Bootstrap.Scenes
 		/// Already built project scope: resolve project services here instead of a service locator.
 		/// It is <c>null</c> for the Project Context, whose installers fill the project container itself.
 		/// </param>
-		public abstract void Install(IContainerBuilder builder, IScope parent);
+		public abstract void Install(IContainerBuilder builder, [CanBeNull] IScope parent);
 	}
-}
+}

@@ -33,10 +33,6 @@ namespace Depra.Bootstrap
 			_project.Compose(new DelegateCompositionRoot(compose));
 		}
 
-		/// <summary>
-		/// From this line on every loaded scene builds its Scene Context on top of the project scope.
-		/// Roots composed above it are ready for the scenes; roots composed below it run after the start scene.
-		/// </summary>
 		public void ComposeScenes()
 		{
 			_project.EnsureCurrent(this);

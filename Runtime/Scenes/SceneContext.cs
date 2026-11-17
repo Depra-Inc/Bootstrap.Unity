@@ -12,17 +12,17 @@ using Depra.IoC.Scope;
 using Depra.SerializeReference.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Depra.Bootstrap.Boot;
 
 namespace Depra.Bootstrap.Scenes
 {
 	[DisallowMultipleComponent]
-	[AddComponentMenu("Depra/Bootstrap/Scene Context", 52)]
-	internal sealed class SceneContext : MonoBehaviour
+	[AddComponentMenu(MENU_PATH + "Scene Context", DEFAULT_ORDER)]
+	public sealed class SceneContext : MonoBehaviour
 	{
 		[SerializeField] private SceneInstaller[] _sceneInstallers = Array.Empty<SceneInstaller>();
 
-		[SerializeReferenceDropdown]
-		[UnityEngine.SerializeReference]
+		[SerializeReferenceDropdown] [UnityEngine.SerializeReference]
 		private IInstaller[] _serializedInstallers = Array.Empty<IInstaller>();
 
 		[SerializeField] private SceneCompositionRoot[] _compositionRoots = Array.Empty<SceneCompositionRoot>();
@@ -33,7 +33,9 @@ namespace Depra.Bootstrap.Scenes
 
 		private void OnDestroy() => Release();
 
-		public void Install(IContainerBuilder builder, IScope parent)
+		private bool IsComposed => _scope != null;
+
+		internal void Install(IContainerBuilder builder, IScope parent)
 		{
 			foreach (var installer in _sceneInstallers)
 			{
@@ -46,9 +48,7 @@ namespace Depra.Bootstrap.Scenes
 			}
 		}
 
-		private bool IsComposed => _scope != null;
-
-		public void Compose(IScope scope)
+		internal void Compose(IScope scope)
 		{
 			if (_scope != null)
 			{
@@ -63,7 +63,7 @@ namespace Depra.Bootstrap.Scenes
 			}
 		}
 
-		public void Release()
+		internal void Release()
 		{
 			var errors = new List<Exception>();
 			while (_composedCount > 0)
@@ -134,6 +134,22 @@ namespace Depra.Bootstrap.Scenes
 
 				throw;
 			}
+		}
+
+		internal static bool Spawn(SceneContext prefab, Scene scene, out SceneContext context)
+		{
+			context = null;
+			if (!prefab)
+			{
+				return false;
+			}
+
+			context = Instantiate(prefab);
+#if UNITY_EDITOR
+			context.name = prefab.name;
+#endif
+			SceneManager.MoveGameObjectToScene(context.gameObject, scene);
+			return true;
 		}
 
 		internal static bool TryFind(Scene scene, out SceneContext context)
