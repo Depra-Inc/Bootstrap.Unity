@@ -9,7 +9,6 @@ using Depra.IoC.Activation;
 using Depra.IoC.Composition;
 using Depra.IoC.QoL.Builder;
 using Depra.IoC.Scope;
-using Depra.SerializeReference.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static Depra.Bootstrap.Boot;
@@ -20,12 +19,9 @@ namespace Depra.Bootstrap.Scenes
 	[AddComponentMenu(MENU_PATH + "Scene Context", DEFAULT_ORDER)]
 	public sealed class SceneContext : MonoBehaviour
 	{
-		[SerializeField] private SceneInstaller[] _sceneInstallers = Array.Empty<SceneInstaller>();
+		[SerializeField] private SceneInstaller[] _sceneInstallers;
 
-		[SerializeReferenceDropdown] [UnityEngine.SerializeReference]
-		private IInstaller[] _serializedInstallers = Array.Empty<IInstaller>();
-
-		[SerializeField] private SceneCompositionRoot[] _compositionRoots = Array.Empty<SceneCompositionRoot>();
+		[SerializeField] private SceneCompositionRoot[] _compositionRoots;
 
 		private IScope _scope;
 		private IContainer _container;
@@ -40,11 +36,6 @@ namespace Depra.Bootstrap.Scenes
 			foreach (var installer in _sceneInstallers)
 			{
 				installer.Install(builder, parent);
-			}
-
-			foreach (var installer in _serializedInstallers)
-			{
-				installer.Install(builder);
 			}
 		}
 

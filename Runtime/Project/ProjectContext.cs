@@ -18,32 +18,13 @@ namespace Depra.Bootstrap
 	{
 		private readonly List<IDisposable> _owned = new();
 
-		private object _stage;
 		private IScope _scope;
 		private IContainer _container;
-		private List<ICompositionRoot> _waitingForStartScene;
-		private SceneContext _screen;
-		private ISceneEntryPoint[] _entryPoints = Array.Empty<ISceneEntryPoint>();
+		private SceneContext _screenContext;
+		private ISceneEntryPoint[] _entryPoints;
+		private Action<IScope> _run;
 
-		public T Enter<T>(T stage)
-		{
-			_stage = stage;
-			return stage;
-		}
-
-		public void Leave(object stage)
-		{
-			EnsureCurrent(stage);
-			_stage = null;
-		}
-
-		public void EnsureCurrent(object stage)
-		{
-			if (_stage != stage)
-			{
-				throw new StageCompletedException(stage.GetType().Name);
-			}
-		}
+		public IScope Scope => _scope;
 
 		public void Build(ContainerBuilder builder)
 		{
@@ -51,20 +32,14 @@ namespace Depra.Bootstrap
 			_scope = _container.CreateScope();
 		}
 
-		public void Compose(ICompositionRoot root)
+		public void Compose(IScope scope, ICompositionRoot root)
 		{
 			if (root is IDisposable disposable)
 			{
 				_owned.Add(disposable);
 			}
 
-			if (_waitingForStartScene != null)
-			{
-				_waitingForStartScene.Add(root);
-				return;
-			}
-
-			root.Compose(_scope);
+			root.Compose(scope);
 		}
 
 		public void ComposeScenes(SceneContext context)
@@ -77,21 +52,25 @@ namespace Depra.Bootstrap
 			}
 
 			SceneManager.sceneLoaded += OnSceneLoaded;
+		}
 
-			// Built before the first scene loads: roots composed below wait for it.
-			if (!SceneManager.GetActiveScene().isLoaded)
+		public void RunAfterStartScene(Action<IScope> run)
+		{
+			if (SceneManager.GetActiveScene().isLoaded)
 			{
-				_waitingForStartScene = new List<ICompositionRoot>();
+				run(_scope);
+				return;
 			}
+
+			_run = run;
 		}
 
 		public void Stop()
 		{
 			Application.quitting -= Stop;
 			SceneManager.sceneLoaded -= OnSceneLoaded;
-			_stage = null;
 			_entryPoints = Array.Empty<ISceneEntryPoint>();
-			_waitingForStartScene = null;
+			_run = null;
 
 			var errors = new List<Exception>();
 			for (var index = _owned.Count - 1; index >= 0; index--)
@@ -112,50 +91,35 @@ namespace Depra.Bootstrap
 
 		private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 		{
-			// Release the previous screen first: screens share the ECS worlds and the service locator.
 			if (SceneContext.TryFind(scene, out var screen) || TryEnter(scene, out screen))
 			{
-				if (_screen && _screen != screen)
+				if (_screenContext && _screenContext != screen)
 				{
 					try
 					{
-						_screen.Release();
+						_screenContext.Release();
 					}
 					catch (Exception error)
 					{
-						Debug.LogException(error, _screen);
+						Debug.LogException(error, _screenContext);
 					}
 				}
 
-				_screen = screen;
+				_screenContext = screen;
 				SceneContext.ComposeScene(scene, _scope);
 			}
 
-			if (_waitingForStartScene == null)
-			{
-				return;
-			}
-
-			var roots = _waitingForStartScene;
-			_waitingForStartScene = null;
-			foreach (var root in roots)
-			{
-				root.Compose(_scope);
-			}
+			var run = _run;
+			_run = null;
+			run?.Invoke(_scope);
 		}
 
-		// Depra.IoC resolves IEnumerable<T> only for two or more registrations.
-		private ISceneEntryPoint[] ResolveEntryPoints()
-		{
-			if (_scope.CanResolve(typeof(IEnumerable<ISceneEntryPoint>)))
-			{
-				return _scope.Resolve<IEnumerable<ISceneEntryPoint>>().ToArray();
-			}
-
-			return _scope.CanResolve(typeof(ISceneEntryPoint))
-				? new[] { _scope.Resolve<ISceneEntryPoint>() }
-				: Array.Empty<ISceneEntryPoint>();
-		}
+		private ISceneEntryPoint[] ResolveEntryPoints() =>
+			_scope.CanResolve(typeof(IEnumerable<ISceneEntryPoint>))
+				? _scope.Resolve<IEnumerable<ISceneEntryPoint>>().ToArray()
+				: _scope.CanResolve(typeof(ISceneEntryPoint))
+					? new[] { _scope.Resolve<ISceneEntryPoint>() }
+					: Array.Empty<ISceneEntryPoint>();
 
 		private bool TryEnter(Scene scene, out SceneContext context)
 		{

@@ -3,6 +3,10 @@
 
 using System;
 using Depra.Bootstrap.Scenes;
+using Depra.IoC.Activation;
+using Depra.IoC.Composition;
+using Depra.IoC.QoL.Builder;
+using Depra.IoC.Scope;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,9 +17,12 @@ namespace Depra.Bootstrap
 		internal const int DEFAULT_ORDER = 52;
 		internal const string MENU_PATH = "Depra/Bootstrap/";
 
+		private static ProjectContext _project;
+
 		public static void Start<TConfig>(TConfig config,
-			Action<ProjectInstallation, TConfig> install,
-			Action<ProjectComposition, TConfig> compose)
+			Action<IContainerBuilder, TConfig> install,
+			Action<IScope, TConfig> compose,
+			Action<IScope> run)
 		{
 			if (config is null)
 			{
@@ -32,18 +39,28 @@ namespace Depra.Bootstrap
 				throw new ArgumentNullException(nameof(compose));
 			}
 
-			var project = new ProjectContext();
+			if (run == null)
+			{
+				throw new ArgumentNullException(nameof(run));
+			}
+
+			var project = _project = new ProjectContext();
 			Application.quitting += project.Stop;
 
 			try
 			{
 				var context = CreateProjectContext();
-				var installation = project.Enter(new ProjectInstallation(project, context));
-				install(installation, config);
+				var builder = new ContainerBuilder(new LambdaBasedActivationBuilder());
+				if (context)
+				{
+					context.Install(builder, parent: null);
+				}
 
-				var composition = installation.Complete();
-				compose(composition, config);
-				composition.Complete();
+				install(builder, config);
+				project.Build(builder);
+				compose(project.Scope, config);
+				project.ComposeScenes(context);
+				project.RunAfterStartScene(run);
 			}
 			catch (Exception error)
 			{
@@ -51,6 +68,10 @@ namespace Depra.Bootstrap
 				throw;
 			}
 		}
+
+		public static void Install(this IContainerBuilder builder, IInstaller installer) => installer.Install(builder);
+
+		public static void Compose(this IScope scope, ICompositionRoot root) => _project.Compose(scope, root);
 
 		private static SceneContext CreateProjectContext()
 		{
@@ -64,6 +85,7 @@ namespace Depra.Bootstrap
 			var context = Object.Instantiate(original);
 			context.name = original.name;
 			Object.DontDestroyOnLoad(context.gameObject);
+
 			return context;
 		}
 
