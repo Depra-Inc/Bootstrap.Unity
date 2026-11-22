@@ -11,8 +11,7 @@
     "precompiledReferences": [
         "Depra.IoC.dll",
         "Depra.IoC.QoL.dll",
-        "Depra.IoC.Composition.dll",
-        "Depra.Loading.dll"
+        "Depra.IoC.Composition.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
